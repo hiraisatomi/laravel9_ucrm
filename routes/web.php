@@ -24,8 +24,16 @@ Route::get('/inertia-test', function () {
 Route::get('/inertia/index', [inertiaTestController::class, 'index'])
 ->name('inertia.index');
 
+Route::get('/inertia/create', [inertiaTestController::class, 'create'])
+->name('inertia.create');
+
+Route::post('/inertia', [inertiaTestController::class, 'store'])
+->name('inertia.store');
+
 Route::get('/inertia/show/{id}', [inertiaTestController::class, 'show'])
 ->name('inertia.show');
+
+
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
