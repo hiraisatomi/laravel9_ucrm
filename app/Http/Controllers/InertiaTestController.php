@@ -38,6 +38,10 @@ class InertiaTestController extends Controller
         $inertiaTest->content = $request->content;
         $inertiaTest->save();
 
-        return to_route('inertia.index');
+        // Middlewareを通してフラッシュメッセージを表示させてリダイレクトする
+        return to_route('inertia.index')
+        ->with([
+            'message' => '登録しました！'
+        ]);
     }
 }
