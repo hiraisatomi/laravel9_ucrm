@@ -5,6 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\InertiaTestController;
+use App\Http\Controllers\ItemController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,22 +18,23 @@ use App\Http\Controllers\InertiaTestController;
 |
 */
 
+// php artisan make:model モデル名 -a で作成するとコントローラー処理をresourceでまとめることができる
+Route::resource('items', ItemController::class)
+->middleware(['auth', 'verified']);
+
+
+
 Route::get('/inertia-test', function () {
     return Inertia::render('InertiaTest');
 });
-
 Route::get('/inertia/index', [inertiaTestController::class, 'index'])
 ->name('inertia.index');
-
 Route::get('/inertia/create', [inertiaTestController::class, 'create'])
 ->name('inertia.create');
-
 Route::post('/inertia', [inertiaTestController::class, 'store'])
 ->name('inertia.store');
-
 Route::get('/inertia/show/{id}', [inertiaTestController::class, 'show'])
 ->name('inertia.show');
-
 Route::delete('/inertia/{id}', [inertiaTestController::class, 'delete'])
 ->name('inertia.delete');
 
