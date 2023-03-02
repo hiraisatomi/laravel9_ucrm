@@ -1,12 +1,17 @@
 <script setup>
 import { Inertia } from '@inertiajs/inertia';
+
 defineProps({
     id: String,
     blog: Object
 })
 
+// イベントコールバックの呼び出し
 const deleteConfirm = id => {
     // console.log(id)
+    Inertia.delete(`/inertia/${id}`, {
+        onBefore: () => confirm('本当に削除しますか？')
+    })
 }
 </script>
 
