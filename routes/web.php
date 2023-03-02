@@ -33,6 +33,9 @@ Route::post('/inertia', [inertiaTestController::class, 'store'])
 Route::get('/inertia/show/{id}', [inertiaTestController::class, 'show'])
 ->name('inertia.show');
 
+Route::delete('/inertia/{id}', [inertiaTestController::class, 'delete'])
+->name('inertia.delete');
+
 
 
 Route::get('/', function () {
