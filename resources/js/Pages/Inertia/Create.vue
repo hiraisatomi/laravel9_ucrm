@@ -1,6 +1,6 @@
 <script setup>
 import { reactive } from 'vue';
-import { Inertia } from '@inertiajs/inertia';
+import { Inertia } from '@inertiajs/inertia-vue3';
 
 defineProps({
     errors: Object
@@ -8,7 +8,7 @@ defineProps({
 
 const form = reactive({
     title: null,
-    coontent: null
+    content: null
 })
 
 const submitFunction = () => {

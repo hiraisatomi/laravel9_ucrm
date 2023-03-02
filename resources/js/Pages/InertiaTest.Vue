@@ -1,5 +1,5 @@
 <script setup>
-import { Link } from '@inertiajs/inertia';
+import { Link } from '@inertiajs/inertia-vue3';
 // CompositionAPI
 import { ref } from 'vue';
 
