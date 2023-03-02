@@ -25,6 +25,7 @@ const submit = () => {
 };
 </script>
 
+<!-- GuestLayout.vueを読み込み -->
 <template>
     <GuestLayout>
         <Head title="Log in" />

@@ -10,6 +10,7 @@ import { Link } from '@inertiajs/inertia-vue3';
 const showingNavigationDropdown = ref(false);
 </script>
 
+<!-- 名前付きスロット機能 -->
 <template>
     <div>
         <div class="min-h-screen bg-gray-100">
