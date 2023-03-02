@@ -1,6 +1,6 @@
 <script setup>
 import { Link } from '@inertiajs/inertia-vue3';
-// CompositionAPI
+// Composition API
 import { ref } from 'vue';
 
 const newTitle = ref('')
