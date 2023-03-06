@@ -1,28 +1,35 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/inertia-vue3';
+import { Head, Link } from '@inertiajs/inertia-vue3';
 import { reactive } from 'vue';
 import { Inertia } from '@inertiajs/inertia';
 import ValidationErrors from '@/Components/ValidationErrors.vue';
 
-const form = reactive({
-    name: null,
-    memo: null,
-    price: null
+const props = defineProps({
+    item: Object
 })
 
-const storeItem = () => {
-    Inertia.post('/items', form)
+const form = reactive({
+    id: props.item.id,
+    name: props.item.name,
+    memo: props.item.memo,
+    price: props.item.price,
+    is_selling: props.item.is_selling
+})
+
+const updateItem = id => {
+    // routeのメソッドに合わせてput
+    Inertia.put(route('items.update', { item: id }), form)
 }
 </script>
 
 <template>
-    <Head title="商品登録" />
+    <Head title="商品編集" />
 
     <AuthenticatedLayout>
         <!-- AuthenticatedLayout.vueの読み込み -->
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">商品登録</h2>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">商品編集</h2>
         </template>
 
         <div class="py-12">
@@ -31,7 +38,7 @@ const storeItem = () => {
                     <div class="p-6 text-gray-900">
                         <ValidationErrors :errors="errors" />
                         <section class="text-gray-600 body-font relative">
-                            <form @submit.prevent="storeItem">
+                            <form @submit.prevent="updateItem(form.id)">
                                 <div class="container px-5 py-8 mx-auto">
                                     <div class="lg:w-1/2 md:w-2/3 mx-auto">
                                     <div class="flex flex-wrap -m-2">
@@ -54,7 +61,15 @@ const storeItem = () => {
                                         </div>
                                         </div>
                                         <div class="p-2 w-full">
-                                        <button class="flex mx-auto text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">商品登録</button>
+                                        <div class="relative">
+                                            <label for="price" class="leading-7 text-sm text-gray-600">販売中</label>
+                                            <input type="radio" id="is_selling" name="is_selling" v-model="form.is_selling" value="1">
+                                            <label for="price" class="leading-7 text-sm text-gray-600">停止中</label>
+                                            <input type="radio" id="is_selling" name="is_selling" v-model="form.is_selling" value="0">
+                                        </div>
+                                        </div>
+                                        <div class="p-2 w-full">
+                                        <button class="flex mx-auto text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">更新する</button>
                                         </div>
                                         </div>
                                     </div>
