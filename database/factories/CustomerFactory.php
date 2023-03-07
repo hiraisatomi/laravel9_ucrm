@@ -9,11 +9,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class CustomerFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    // ダミーデータの準備
     public function definition()
     {
         $tel = str_replace('-', '', $this->faker->phoneNumber);
