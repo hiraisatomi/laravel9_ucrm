@@ -2,6 +2,7 @@
 import FlashMessage from '@/Components/FlashMessage.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/inertia-vue3';
+import ValidationErrors from '@/Components/ValidationErrors.vue';
 
 defineProps( {
     items: Array

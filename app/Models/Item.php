@@ -9,6 +9,7 @@ class Item extends Model
 {
     use HasFactory;
 
+    // →ItemControllerのstore→Requires/StoreCustomerRequestで設定
     protected $fillable = [
         'name',
         'memo',

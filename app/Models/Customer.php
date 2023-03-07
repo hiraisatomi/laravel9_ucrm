@@ -9,9 +9,15 @@ class Customer extends Model
 {
     use HasFactory;
 
+    // →CustomerControllerのstore→Requires/StoreCustomerRequestで設定
+    protected $fillable = [
+        'name', 'kana', 'tel', 'email',
+        'postcode', 'address', 'birthday', 'gender', 'memo' ];
+
+
+    // 顧客検索
     public function scopeSearchCustomers($query, $input = null)
     {
-        // 顧客検索
         if(!empty($input)) {
             if(Customer::where('kana', 'like', $input . '%' )
             ->orWhere('tel', 'like', $input . '%' )->exists())

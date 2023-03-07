@@ -234,7 +234,9 @@ return [
         'username' => 'ユーザー名',
         'year' => '年',
         'memo' => 'メモ',
-        'price' => '料金'
+        'price' => '料金',
+        'kana' => 'カナ',
+        'postcode' => '郵便番号'
     ],
 
 ];
