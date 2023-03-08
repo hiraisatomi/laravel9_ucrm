@@ -2,36 +2,28 @@
 import FlashMessage from "@/Components/FlashMessage.vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head, Link } from "@inertiajs/inertia-vue3";
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import Pagination from "@/Components/Pagination.vue";
-import { ref } from "vue";
 import { Inertia } from "@inertiajs/inertia";
+import dayjs from "dayjs";
 
-defineProps({
-    customers: Array,
+const props = defineProps({
+    orders: Object,
 });
 
-const search = ref("");
-
-// refの値を取得するには .valueが必要
-const searchCustomers = () => {
-    Inertia.get(route("customers.index", { search: search.value }));
-};
-
-// onMounted(() => {
-//     console.log(props.customers)
-//     console.log(props.customers.last_page)
-// })
+onMounted(() => {
+    console.log(props.orders.data);
+});
 </script>
 
 <template>
-    <Head title="顧客一覧" />
+    <Head title="購買履歴" />
 
     <AuthenticatedLayout>
         <!-- AuthenticatedLayout.vueの読み込み -->
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                顧客一覧
+                購買履歴
             </h2>
         </template>
         <div class="py-12">
@@ -43,14 +35,7 @@ const searchCustomers = () => {
                                 <FlashMessage />
                                 <div
                                     class="flex pl-4 my-4 lg:w-2/3 w-full mx-auto"
-                                >
-                                    <Link
-                                        as="button"
-                                        :href="route('customers.create')"
-                                        class="flex ml-auto text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded"
-                                        >顧客登録</Link
-                                    >
-                                </div>
+                                ></div>
                                 <div>
                                     <input
                                         type="text"
@@ -85,38 +70,70 @@ const searchCustomers = () => {
                                                 <th
                                                     class="px-4 py-3 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100"
                                                 >
-                                                    カナ
+                                                    合計金額
                                                 </th>
                                                 <th
                                                     class="px-4 py-3 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100"
                                                 >
-                                                    電話番号
+                                                    ステータス
+                                                </th>
+                                                <th
+                                                    class="px-4 py-3 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100"
+                                                >
+                                                    購入日
                                                 </th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr
-                                                v-for="customer in customers.data"
-                                                :key="customer.id"
+                                                v-for="order in props.orders
+                                                    .data"
+                                                :key="order.id"
                                             >
-                                                {{
-                                                    customer.id
-                                                }}
-
                                                 <td
                                                     class="border-b-2 border-gray-200 px-4 py-3"
                                                 >
-                                                    {{ customer.name }}
+                                                    <Link
+                                                        class="text-blue-400"
+                                                        :href="
+                                                            route(
+                                                                'purchases.show',
+                                                                {
+                                                                    purchase:
+                                                                        order.id,
+                                                                },
+                                                            )
+                                                        "
+                                                    >
+                                                        {{ order.id }}
+                                                    </Link>
                                                 </td>
                                                 <td
                                                     class="border-b-2 border-gray-200 px-4 py-3"
                                                 >
-                                                    {{ customer.kana }}
+                                                    {{ order.customer_name }}
                                                 </td>
                                                 <td
                                                     class="border-b-2 border-gray-200 px-4 py-3"
                                                 >
-                                                    {{ customer.tel }}
+                                                    {{ order.total }}
+                                                </td>
+                                                <td
+                                                    class="border-b-2 border-gray-200 px-4 py-3"
+                                                >
+                                                    {{ order.status }}
+                                                </td>
+                                                <td
+                                                    class="border-b-2 border-gray-200 px-4 py-3"
+                                                >
+                                                    <!-- Day.jsライブラリで日時をきれいに表示 -->
+                                                    {{
+                                                        dayjs(
+                                                            order.created_at,
+                                                        ).format(
+                                                            "YYYY-MM-DD HH:mm:ss",
+                                                        )
+                                                    }}
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -126,7 +143,7 @@ const searchCustomers = () => {
                             <!-- Pagination.vueから読み込んだページネーション -->
                             <Pagination
                                 class="mt-6"
-                                :links="customers.links"
+                                :links="props.orders.links"
                             ></Pagination>
                         </section>
                     </div>

@@ -10,24 +10,39 @@ use App\Models\Item;
 use Inertia\Inertia;
 // トランザクション処理のため追加
 use Illuminate\Support\Facades\DB;
+// グローバルスコープ サブクエリ
+use App\Models\Order;
 
 class PurchaseController extends Controller
 {
     public function index()
     {
-        //
+        // データ件数が多いときはall,getを使わない方がいい
+        // dd(Order::paginate(50));
+
+        // 小計→合計
+        $orders = Order::groupBy("id")
+            ->selectRaw(
+                "id, customer_name, sum(subtotal) as total,
+                status, created_at"
+            )
+            ->paginate(50);
+
+        return Inertia::render("Purchases/Index", [
+            "orders" => $orders,
+        ]);
     }
 
     public function create()
     {
         // $customers = Customer::select('id', 'name', 'kana' )->get();
-        $items = Item::select('id', 'name', 'price')
-        ->where('is_selling', true)
-        ->get();
+        $items = Item::select("id", "name", "price")
+            ->where("is_selling", true)
+            ->get();
 
-        return Inertia::render('Purchases/Create', [
+        return Inertia::render("Purchases/Create", [
             // 'customers' => $customers,
-            'items' => $items
+            "items" => $items,
         ]);
     }
 
@@ -39,39 +54,124 @@ class PurchaseController extends Controller
 
         try {
             $purchase = Purchase::create([
-                'customer_id' => $request->customer_id,
-                'status' => $request->status
+                "customer_id" => $request->customer_id,
+                "status" => $request->status,
             ]);
 
-            foreach($request->items as $item) {
-                $purchase->items()->attach( $purchase->id, [
-                    'item_id' => $item['id'],
-                    'quantity' => $item['quantity']
+            foreach ($request->items as $item) {
+                $purchase->items()->attach($purchase->id, [
+                    "item_id" => $item["id"],
+                    "quantity" => $item["quantity"],
                 ]);
             }
             DB::commit();
-            return to_route('dashboard');
-            }
-        catch(\Exception $e) {
+            return to_route("dashboard");
+        } catch (\Exception $e) {
             DB::rollBack();
         }
-
     }
-
 
     public function show(Purchase $purchase)
     {
-        //
+        // 小計
+        $items = Order::where("id", $purchase->id)->get();
+        // 合計(where文でidのみに絞っているので最後はgetでOK)
+        $order = Order::groupBy("id")
+            ->where("id", $purchase->id)
+            ->selectRaw(
+                "id, customer_name, sum(subtotal) as total,
+                status, created_at"
+            )
+            ->get();
+
+        // dd($items, $order);
+        return Inertia::render("Purchases/Show", [
+            "items" => $items,
+            "order" => $order,
+        ]);
     }
 
     public function edit(Purchase $purchase)
     {
-        //
+        $purchase = Purchase::find($purchase->id);
+
+        $allItems = Item::select("id", "name", "price")->get();
+
+        $items = [];
+
+        foreach ($allItems as $allItem) {
+            $quantity = 0;
+            // 中間テーブルの情報
+            foreach ($purchase->items as $item) {
+                if ($allItem->id === $item->id) {
+                    // 中間テーブルの数量情報を持ってくる
+                    $quantity = $item->pivot->quantity;
+                }
+            }
+            array_push($items, [
+                "id" => $allItem->id,
+                "name" => $allItem->name,
+                "price" => $allItem->price,
+                "quantity" => $quantity,
+            ]);
+        }
+
+        // dd($items);
+        // 合計(where文でidのみに絞っているので最後はgetでOK)
+        $order = Order::groupBy("id")
+            ->where("id", $purchase->id)
+            ->selectRaw(
+                "id, customer_id, customer_name,
+                    status, created_at"
+            )
+            ->get();
+
+        return Inertia::render("Purchases/Edit", [
+            "items" => $items,
+            "order" => $order,
+        ]);
     }
 
     public function update(UpdatePurchaseRequest $request, Purchase $purchase)
     {
-        //
+        // トランザクション処理忘れずに
+        DB::beginTransaction();
+
+        try {
+            $purchase = Purchase::create([
+                "customer_id" => $request->customer_id,
+                "status" => $request->status,
+            ]);
+
+            foreach ($request->items as $item) {
+                $purchase->items()->attach($purchase->id, [
+                    "item_id" => $item["id"],
+                    "quantity" => $item["quantity"],
+                ]);
+            }
+
+            // dd($request, $purchase);
+            $purchase->status = $request->status;
+            $purchase->save();
+
+            $items = [];
+
+            foreach ($request->items as $item) {
+                $items = $items + [
+                    $item["id"] => [
+                        "quantity" => $item["quantity"],
+                    ],
+                ];
+            }
+            // dd($items);
+            // sync 中間テーブルの更新
+            $purchase->items()->sync($items);
+
+            DB::commit();
+            return to_route("dashboard");
+        } catch (\Exception $e) {
+            DB::rollBack();
+        }
     }
 
     public function destroy(Purchase $purchase)
